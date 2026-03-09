@@ -42,8 +42,7 @@ defmodule TestElixir.ConnectFour.Server do
   end
 
   @spec join_room(room_id(), String.t()) ::
-          {:ok, ConnectFour.t(), ConnectFour.color()}
-          | {:error, :not_found | ConnectFour.join_error()}
+          {:ok, ConnectFour.t(), ConnectFour.role()} | {:error, :not_found}
   def join_room(room_id, player_id) do
     with {:ok, pid} <- fetch_room(room_id) do
       GenServer.call(pid, {:join, player_id})
@@ -77,13 +76,8 @@ defmodule TestElixir.ConnectFour.Server do
   end
 
   def handle_call({:join, player_id}, _from, game) do
-    case ConnectFour.join(game, player_id) do
-      {:ok, updated, color} ->
-        {:reply, {:ok, updated, color}, updated}
-
-      {:error, reason} ->
-        {:reply, {:error, reason}, game}
-    end
+    {:ok, updated, role} = ConnectFour.join(game, player_id)
+    {:reply, {:ok, updated, role}, updated}
   end
 
   def handle_call({:drop_disc, player_id, column}, _from, game) do

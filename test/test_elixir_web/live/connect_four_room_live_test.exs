@@ -46,14 +46,17 @@ defmodule TestElixirWeb.ConnectFourRoomLiveTest do
     assert html =~ "Room not found"
   end
 
-  test "a third player sees a room full error", %{conn: conn} do
+  test "a third player joins as a spectator", %{conn: conn} do
     {:ok, room_id} = Server.create_room()
 
     {:ok, _alice_view, _html} = live(conn, "/connect-four/#{room_id}?player_id=alice")
     {:ok, _bob_view, _html} = live(build_conn(), "/connect-four/#{room_id}?player_id=bob")
-    {:ok, _carol_view, html} = live(build_conn(), "/connect-four/#{room_id}?player_id=carol")
+    {:ok, carol_view, html} = live(build_conn(), "/connect-four/#{room_id}?player_id=carol")
 
-    assert html =~ "Room is full"
+    assert html =~ "Spectator"
+    assert html =~ "carol"
+    assert html =~ "Spectators"
+    assert render_click(carol_view, :drop_token, %{"column" => 0}) =~ "Spectators cannot play"
   end
 
   test "invalid moves surface room errors in the UI", %{conn: conn} do

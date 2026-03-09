@@ -166,6 +166,10 @@ input {
   background: rgba(240, 197, 76, 0.18);
 }
 
+.seat-badge.spectator {
+  background: rgba(21, 66, 93, 0.12);
+}
+
 .board-panel {
   margin-top: 1rem;
   padding: 1.5rem;

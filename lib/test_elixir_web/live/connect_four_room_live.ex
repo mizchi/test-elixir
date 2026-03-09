@@ -16,6 +16,7 @@ defmodule TestElixirWeb.ConnectFourRoomLive do
         room_id: room_id,
         topic: topic,
         player_id: player_id,
+        player_role: nil,
         player_color: nil,
         state: initial_state(room_id),
         room_error: nil,
@@ -80,9 +81,9 @@ defmodule TestElixirWeb.ConnectFourRoomLive do
         </div>
         <div class="status-stack">
           <span class="identity-pill"><strong>{@player_id}</strong></span>
-          <span :if={@player_color} class={["seat-badge", @player_color]}>{
-            String.capitalize(@player_color)
-          } player</span>
+          <span :if={@player_role} class={["seat-badge", badge_class(@player_role)]}>
+            {role_label(@player_role)}
+          </span>
         </div>
       </section>
 
@@ -128,6 +129,20 @@ defmodule TestElixirWeb.ConnectFourRoomLive do
             </li>
           </ul>
         </section>
+
+        <section class="presence-panel">
+          <h2>Spectators</h2>
+          <ul>
+            <li :for={player_id <- @state["spectators"] || []}>
+              <span class={["seat-badge", "spectator"]}>Spectator</span>
+              <strong>{player_id}</strong>
+              <em>{Map.get(@state["connections"] || %{}, player_id, "unknown")}</em>
+            </li>
+            <li :if={Enum.empty?(@state["spectators"] || [])}>
+              <em>No spectators yet</em>
+            </li>
+          </ul>
+        </section>
       </section>
     </main>
     """
@@ -135,8 +150,18 @@ defmodule TestElixirWeb.ConnectFourRoomLive do
 
   defp join_room(socket) do
     case Server.join_room(socket.assigns.room_id, socket.assigns.player_id) do
+      {:ok, game, :spectator} ->
+        assign(socket,
+          player_role: "spectator",
+          player_color: nil,
+          state: ConnectFourPayload.state(game),
+          joined?: true,
+          room_error: nil
+        )
+
       {:ok, game, color} ->
         assign(socket,
+          player_role: Atom.to_string(color),
           player_color: Atom.to_string(color),
           state: ConnectFourPayload.state(game),
           joined?: true,
@@ -145,9 +170,6 @@ defmodule TestElixirWeb.ConnectFourRoomLive do
 
       {:error, :not_found} ->
         assign(socket, room_error: "Room not found")
-
-      {:error, :room_full} ->
-        assign(socket, room_error: "Room is full")
     end
   end
 
@@ -198,12 +220,19 @@ defmodule TestElixirWeb.ConnectFourRoomLive do
 
   defp human_error(:waiting_for_opponent), do: "Waiting for another player"
   defp human_error(:waiting_for_reconnect), do: "Waiting for a player to reconnect"
+  defp human_error(:spectator_cannot_play), do: "Spectators cannot play"
   defp human_error(:not_your_turn), do: "It is not your turn"
   defp human_error(:invalid_column), do: "Choose a valid column"
   defp human_error(:column_full), do: "That column is full"
   defp human_error(:unknown_player), do: "Unknown player"
   defp human_error(:game_over), do: "The game is already over"
   defp human_error(_reason), do: "Unexpected error"
+
+  defp role_label("spectator"), do: "Spectator"
+  defp role_label(role), do: "#{String.capitalize(role)} player"
+
+  defp badge_class("spectator"), do: "spectator"
+  defp badge_class(role), do: role
 
   defp blank_board do
     List.duplicate(List.duplicate(nil, 7), 6)

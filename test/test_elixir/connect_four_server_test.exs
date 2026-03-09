@@ -24,4 +24,14 @@ defmodule TestElixir.ConnectFour.ServerTest do
 
     assert {:error, :unknown_player} = Server.disconnect_player(room_id, "bob")
   end
+
+  test "join_room/2 assigns third unique player as spectator" do
+    assert {:ok, room_id} = Server.create_room()
+    assert {:ok, _game, :red} = Server.join_room(room_id, "alice")
+    assert {:ok, _game, :yellow} = Server.join_room(room_id, "bob")
+    assert {:ok, game, :spectator} = Server.join_room(room_id, "carol")
+
+    assert "carol" in game.spectators
+    assert game.status == :ready
+  end
 end

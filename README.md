@@ -48,6 +48,9 @@ http://localhost:4000/connect-four
 Create a room in the lobby, then open the same room URL in a second browser
 window with another `player_id`.
 
+A third browser can join the same room as a spectator. Spectators receive live
+updates but cannot drop tokens.
+
 ## API
 
 Create a Connect Four room:

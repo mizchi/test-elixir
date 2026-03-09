@@ -10,6 +10,7 @@ defmodule TestElixir.ConnectFour do
   @enforce_keys [:id]
   defstruct id: nil,
             players: %{},
+            spectators: [],
             connections: %{},
             columns: @initial_columns,
             status: :waiting_for_player,
@@ -17,16 +18,17 @@ defmodule TestElixir.ConnectFour do
             winner: nil
 
   @type color :: :red | :yellow
+  @type role :: color() | :spectator
   @type status :: :waiting_for_player | :ready | :paused | :won | :draw
   @type player_id :: String.t()
   @type column :: non_neg_integer()
-  @type join_error :: :room_full
   @type connection_status :: :connected | :disconnected
   @type move_error ::
           :waiting_for_opponent
           | :waiting_for_reconnect
           | :game_over
           | :unknown_player
+          | :spectator_cannot_play
           | :not_your_turn
           | :invalid_column
           | :column_full
@@ -34,6 +36,7 @@ defmodule TestElixir.ConnectFour do
   @type t :: %__MODULE__{
           id: String.t(),
           players: %{player_id() => color()},
+          spectators: [player_id()],
           connections: %{player_id() => connection_status()},
           columns: [[color()]],
           status: status(),
@@ -46,25 +49,23 @@ defmodule TestElixir.ConnectFour do
     %__MODULE__{id: id}
   end
 
-  @spec join(t(), player_id()) :: {:ok, t(), color()} | {:error, join_error()}
+  @spec join(t(), player_id()) :: {:ok, t(), role()}
   def join(%__MODULE__{} = game, player_id) when is_binary(player_id) do
-    case Map.fetch(game.players, player_id) do
-      {:ok, color} ->
-        updated =
-          game
-          |> put_connection(player_id, :connected)
-          |> refresh_status()
+    cond do
+      Map.has_key?(game.players, player_id) ->
+        {:ok, reconnect(game, player_id), game.players[player_id]}
 
-        {:ok, updated, color}
+      player_id in game.spectators ->
+        {:ok, reconnect(game, player_id), :spectator}
 
-      :error ->
+      true ->
         do_join(game, player_id)
     end
   end
 
   @spec disconnect(t(), player_id()) :: {:ok, t()} | {:error, :unknown_player}
   def disconnect(%__MODULE__{} = game, player_id) when is_binary(player_id) do
-    if Map.has_key?(game.players, player_id) do
+    if participant?(game, player_id) do
       updated =
         game
         |> put_connection(player_id, :disconnected)
@@ -135,14 +136,27 @@ defmodule TestElixir.ConnectFour do
     {:ok, updated, :yellow}
   end
 
-  defp do_join(%__MODULE__{}, _player_id) do
-    {:error, :room_full}
+  defp do_join(%__MODULE__{} = game, player_id) do
+    updated =
+      game
+      |> put_spectator(player_id)
+      |> put_connection(player_id, :connected)
+      |> refresh_status()
+
+    {:ok, updated, :spectator}
   end
 
-  defp fetch_color(%__MODULE__{players: players}, player_id) do
+  defp fetch_color(%__MODULE__{players: players, spectators: spectators}, player_id) do
     case Map.fetch(players, player_id) do
-      {:ok, color} -> {:ok, color}
-      :error -> {:error, :unknown_player}
+      {:ok, color} ->
+        {:ok, color}
+
+      :error ->
+        if player_id in spectators do
+          {:error, :spectator_cannot_play}
+        else
+          {:error, :unknown_player}
+        end
     end
   end
 
@@ -209,8 +223,22 @@ defmodule TestElixir.ConnectFour do
   defp next_turn(:red), do: :yellow
   defp next_turn(:yellow), do: :red
 
+  defp participant?(%__MODULE__{} = game, player_id) do
+    Map.has_key?(game.players, player_id) or player_id in game.spectators
+  end
+
   defp put_connection(%__MODULE__{} = game, player_id, status) do
     %__MODULE__{game | connections: Map.put(game.connections, player_id, status)}
+  end
+
+  defp put_spectator(%__MODULE__{} = game, player_id) do
+    %__MODULE__{game | spectators: [player_id | game.spectators]}
+  end
+
+  defp reconnect(%__MODULE__{} = game, player_id) do
+    game
+    |> put_connection(player_id, :connected)
+    |> refresh_status()
   end
 
   defp refresh_status(%__MODULE__{status: status} = game) when status in [:won, :draw] do

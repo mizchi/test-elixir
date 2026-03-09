@@ -6,11 +6,17 @@ defmodule TestElixirWeb.ConnectFourChannel do
 
   @impl true
   def join("connect_four:" <> room_id, _payload, socket) do
-    with {:ok, game, color} <- Server.join_room(room_id, socket.assigns.player_id) do
+    with {:ok, game, role} <- Server.join_room(room_id, socket.assigns.player_id) do
       socket = assign(socket, :room_id, room_id)
       send(self(), {:broadcast_state, game})
+      {player_role, player_color} = encode_role(role)
 
-      {:ok, %{player_color: Atom.to_string(color), state: ConnectFourPayload.state(game)}, socket}
+      {:ok,
+       %{
+         player_role: player_role,
+         player_color: player_color,
+         state: ConnectFourPayload.state(game)
+       }, socket}
     else
       {:error, reason} ->
         {:error, %{"detail" => error_detail(reason)}}
@@ -73,6 +79,9 @@ defmodule TestElixirWeb.ConnectFourChannel do
   end
 
   defp parse_column(_column), do: {:error, :invalid_column}
+
+  defp encode_role(:spectator), do: {"spectator", nil}
+  defp encode_role(color), do: {Atom.to_string(color), Atom.to_string(color)}
 
   defp error_detail(reason), do: Atom.to_string(reason)
 end

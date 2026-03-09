@@ -18,6 +18,7 @@ defmodule TestElixirWeb.ConnectFourPayload do
       "turn" => turn(game),
       "winner" => encode_color(game.winner),
       "players" => encode_players(game.players),
+      "spectators" => encode_spectators(game.spectators),
       "connections" => encode_connections(game.connections),
       "board" => encode_board(ConnectFour.board_rows(game))
     }
@@ -36,6 +37,11 @@ defmodule TestElixirWeb.ConnectFourPayload do
     Map.new(connections, fn {player_id, status} ->
       {player_id, Atom.to_string(status)}
     end)
+  end
+
+  defp encode_spectators(spectators) do
+    spectators
+    |> Enum.sort()
   end
 
   defp encode_board(rows) do

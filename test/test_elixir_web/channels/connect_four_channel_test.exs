@@ -95,6 +95,30 @@ defmodule TestElixirWeb.ConnectFourChannelTest do
     assert_reply ref, :error, %{"detail" => "invalid_column"}
   end
 
+  test "a third client joins as a spectator and cannot play" do
+    {:ok, room_id} = Server.create_room()
+
+    {:ok, _, _alice_socket} =
+      UserSocket
+      |> socket("alice", %{player_id: "alice"})
+      |> subscribe_and_join(ConnectFourChannel, "connect_four:" <> room_id)
+
+    {:ok, _, _bob_socket} =
+      UserSocket
+      |> socket("bob", %{player_id: "bob"})
+      |> subscribe_and_join(ConnectFourChannel, "connect_four:" <> room_id)
+
+    assert {:ok, %{player_role: "spectator", player_color: nil, state: state}, carol_socket} =
+             UserSocket
+             |> socket("carol", %{player_id: "carol"})
+             |> subscribe_and_join(ConnectFourChannel, "connect_four:" <> room_id)
+
+    assert state["spectators"] == ["carol"]
+
+    ref = push(carol_socket, "drop_token", %{"column" => 0})
+    assert_reply ref, :error, %{"detail" => "spectator_cannot_play"}
+  end
+
   test "disconnecting pauses the room and reconnecting with the same player id resumes it" do
     Process.flag(:trap_exit, true)
 
