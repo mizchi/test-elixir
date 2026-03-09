@@ -51,6 +51,21 @@ defmodule TestElixir.ConnectFourTest do
     assert {:error, :room_full} = ConnectFour.join(game, "carol")
   end
 
+  test "disconnecting pauses the room and reconnecting resumes it" do
+    game =
+      ConnectFour.new("room-5")
+      |> join!("alice")
+      |> join!("bob")
+
+    assert {:ok, paused} = ConnectFour.disconnect(game, "bob")
+    assert paused.status == :paused
+    assert {:error, :waiting_for_reconnect} = ConnectFour.drop_disc(paused, "alice", 0)
+
+    assert {:ok, resumed, :yellow} = ConnectFour.join(paused, "bob")
+    assert resumed.status == :ready
+    assert resumed.turn == :red
+  end
+
   defp join!(game, player_id) do
     {:ok, joined, _color} = ConnectFour.join(game, player_id)
     joined

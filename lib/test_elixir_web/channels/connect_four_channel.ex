@@ -40,6 +40,29 @@ defmodule TestElixirWeb.ConnectFourChannel do
     {:noreply, socket}
   end
 
+  @impl true
+  def terminate(_reason, socket) do
+    case {socket.assigns[:room_id], socket.assigns[:player_id]} do
+      {room_id, player_id} when is_binary(room_id) and is_binary(player_id) ->
+        case Server.disconnect_player(room_id, player_id) do
+          {:ok, game} ->
+            TestElixirWeb.Endpoint.broadcast!(
+              "connect_four:" <> room_id,
+              "state_updated",
+              %{"state" => ConnectFourPayload.state(game)}
+            )
+
+          _ ->
+            :ok
+        end
+
+      _ ->
+        :ok
+    end
+
+    :ok
+  end
+
   defp parse_column(column) when is_integer(column), do: {:ok, column}
 
   defp parse_column(column) when is_binary(column) do

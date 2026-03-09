@@ -94,4 +94,40 @@ defmodule TestElixirWeb.ConnectFourChannelTest do
     ref = push(alice_socket, "drop_token", %{"column" => "oops"})
     assert_reply ref, :error, %{"detail" => "invalid_column"}
   end
+
+  test "disconnecting pauses the room and reconnecting with the same player id resumes it" do
+    Process.flag(:trap_exit, true)
+
+    {:ok, room_id} = Server.create_room()
+
+    {:ok, _, alice_socket} =
+      UserSocket
+      |> socket("alice", %{player_id: "alice"})
+      |> subscribe_and_join(ConnectFourChannel, "connect_four:" <> room_id)
+
+    {:ok, _, bob_socket} =
+      UserSocket
+      |> socket("bob", %{player_id: "bob"})
+      |> subscribe_and_join(ConnectFourChannel, "connect_four:" <> room_id)
+
+    leave(bob_socket)
+
+    assert_broadcast "state_updated", %{
+      "state" => %{
+        "status" => "paused",
+        "connections" => %{"bob" => "disconnected"}
+      }
+    }
+
+    ref = push(alice_socket, "drop_token", %{"column" => 0})
+    assert_reply ref, :error, %{"detail" => "waiting_for_reconnect"}
+
+    assert {:ok, %{player_color: "yellow", state: resumed}, _bob_socket} =
+             UserSocket
+             |> socket("bob", %{player_id: "bob"})
+             |> subscribe_and_join(ConnectFourChannel, "connect_four:" <> room_id)
+
+    assert resumed["status"] == "ready"
+    assert resumed["connections"] == %{"alice" => "connected", "bob" => "connected"}
+  end
 end

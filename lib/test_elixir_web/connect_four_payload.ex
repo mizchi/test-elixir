@@ -18,6 +18,7 @@ defmodule TestElixirWeb.ConnectFourPayload do
       "turn" => turn(game),
       "winner" => encode_color(game.winner),
       "players" => encode_players(game.players),
+      "connections" => encode_connections(game.connections),
       "board" => encode_board(ConnectFour.board_rows(game))
     }
   end
@@ -28,6 +29,12 @@ defmodule TestElixirWeb.ConnectFourPayload do
   defp encode_players(players) do
     Map.new(players, fn {player_id, color} ->
       {player_id, encode_color(color)}
+    end)
+  end
+
+  defp encode_connections(connections) do
+    Map.new(connections, fn {player_id, status} ->
+      {player_id, Atom.to_string(status)}
     end)
   end
 

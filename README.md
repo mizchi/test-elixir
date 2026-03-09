@@ -53,6 +53,8 @@ Then connect players to the returned topic over Phoenix Channels:
 ws://127.0.0.1:4000/socket/websocket?vsn=2.0.0&player_id=alice
 ```
 
+Reconnect with the same `player_id` to reclaim the same seat after a disconnect.
+
 Join topic:
 
 ```json

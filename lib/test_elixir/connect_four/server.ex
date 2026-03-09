@@ -58,6 +58,14 @@ defmodule TestElixir.ConnectFour.Server do
     end
   end
 
+  @spec disconnect_player(room_id(), String.t()) ::
+          {:ok, ConnectFour.t()} | {:error, :not_found | :unknown_player}
+  def disconnect_player(room_id, player_id) do
+    with {:ok, pid} <- fetch_room(room_id) do
+      GenServer.call(pid, {:disconnect, player_id})
+    end
+  end
+
   @impl true
   def init(room_id) do
     {:ok, ConnectFour.new(room_id)}
@@ -80,6 +88,16 @@ defmodule TestElixir.ConnectFour.Server do
 
   def handle_call({:drop_disc, player_id, column}, _from, game) do
     case ConnectFour.drop_disc(game, player_id, column) do
+      {:ok, updated} ->
+        {:reply, {:ok, updated}, updated}
+
+      {:error, reason} ->
+        {:reply, {:error, reason}, game}
+    end
+  end
+
+  def handle_call({:disconnect, player_id}, _from, game) do
+    case ConnectFour.disconnect(game, player_id) do
       {:ok, updated} ->
         {:reply, {:ok, updated}, updated}
 

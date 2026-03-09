@@ -10,6 +10,7 @@ defmodule TestElixir.ConnectFour do
   @enforce_keys [:id]
   defstruct id: nil,
             players: %{},
+            connections: %{},
             columns: @initial_columns,
             status: :waiting_for_player,
             turn: :red,
@@ -20,8 +21,10 @@ defmodule TestElixir.ConnectFour do
   @type player_id :: String.t()
   @type column :: non_neg_integer()
   @type join_error :: :room_full
+  @type connection_status :: :connected | :disconnected
   @type move_error ::
           :waiting_for_opponent
+          | :waiting_for_reconnect
           | :game_over
           | :unknown_player
           | :not_your_turn
@@ -46,16 +49,39 @@ defmodule TestElixir.ConnectFour do
   def join(%__MODULE__{} = game, player_id) when is_binary(player_id) do
     case Map.fetch(game.players, player_id) do
       {:ok, color} ->
-        {:ok, game, color}
+        updated =
+          game
+          |> put_connection(player_id, :connected)
+          |> refresh_status()
+
+        {:ok, updated, color}
 
       :error ->
         do_join(game, player_id)
     end
   end
 
+  @spec disconnect(t(), player_id()) :: {:ok, t()} | {:error, :unknown_player}
+  def disconnect(%__MODULE__{} = game, player_id) when is_binary(player_id) do
+    if Map.has_key?(game.players, player_id) do
+      updated =
+        game
+        |> put_connection(player_id, :disconnected)
+        |> refresh_status()
+
+      {:ok, updated}
+    else
+      {:error, :unknown_player}
+    end
+  end
+
   @spec drop_disc(t(), player_id(), column()) :: {:ok, t()} | {:error, move_error()}
   def drop_disc(%__MODULE__{status: :waiting_for_player}, _player_id, _column) do
     {:error, :waiting_for_opponent}
+  end
+
+  def drop_disc(%__MODULE__{status: :paused}, _player_id, _column) do
+    {:error, :waiting_for_reconnect}
   end
 
   def drop_disc(%__MODULE__{status: status}, _player_id, _column) when status in [:won, :draw] do
@@ -86,7 +112,13 @@ defmodule TestElixir.ConnectFour do
   end
 
   defp do_join(%__MODULE__{players: players} = game, player_id) when map_size(players) == 0 do
-    updated = %__MODULE__{game | players: Map.put(players, player_id, :red)}
+    updated =
+      %__MODULE__{
+        game
+        | players: Map.put(players, player_id, :red),
+          connections: Map.put(game.connections, player_id, :connected)
+      }
+
     {:ok, updated, :red}
   end
 
@@ -95,6 +127,7 @@ defmodule TestElixir.ConnectFour do
       %__MODULE__{
         game
         | players: Map.put(players, player_id, :yellow),
+          connections: Map.put(game.connections, player_id, :connected),
           status: :ready
       }
 
@@ -174,6 +207,32 @@ defmodule TestElixir.ConnectFour do
 
   defp next_turn(:red), do: :yellow
   defp next_turn(:yellow), do: :red
+
+  defp put_connection(%__MODULE__{} = game, player_id, status) do
+    %__MODULE__{game | connections: Map.put(game.connections, player_id, status)}
+  end
+
+  defp refresh_status(%__MODULE__{status: status} = game) when status in [:won, :draw] do
+    game
+  end
+
+  defp refresh_status(%__MODULE__{players: players} = game) when map_size(players) < 2 do
+    %__MODULE__{game | status: :waiting_for_player}
+  end
+
+  defp refresh_status(%__MODULE__{} = game) do
+    if all_connected?(game) do
+      %__MODULE__{game | status: :ready}
+    else
+      %__MODULE__{game | status: :paused}
+    end
+  end
+
+  defp all_connected?(%__MODULE__{players: players, connections: connections}) do
+    Enum.all?(Map.keys(players), fn player_id ->
+      Map.get(connections, player_id) == :connected
+    end)
+  end
 
   defp cell_at(_columns, column_index, row_index)
        when column_index < 0 or column_index >= @column_count or row_index < 0 or
