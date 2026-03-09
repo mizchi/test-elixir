@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28.4"
+          elixir-version: "1.19.5"
+          version-type: strict
+
+      - uses: extractions/setup-just@v3
+
+      - name: Install dependencies
+        run: just setup
+
+      - name: Run CI checks
+        run: just ci
