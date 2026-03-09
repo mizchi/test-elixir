@@ -6,6 +6,7 @@ defmodule TestElixir.MixProject do
       app: :test_elixir,
       version: "0.1.0",
       elixir: "~> 1.19",
+      compilers: [:phoenix_live_view] ++ Mix.compilers(),
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -26,6 +27,8 @@ defmodule TestElixir.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.8.5"},
+      {:phoenix_live_view, "~> 1.1.0"},
+      {:lazy_html, ">= 0.1.0", only: :test},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.4"},

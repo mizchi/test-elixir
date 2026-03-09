@@ -1,0 +1,261 @@
+:root {
+  --bg: #f4efe6;
+  --panel: #fffaf2;
+  --ink: #20160f;
+  --muted: #6f6257;
+  --line: #d7c6b4;
+  --accent: #0f5b52;
+  --accent-2: #d95d39;
+  --board: #15425d;
+  --board-slot: #f6ede0;
+  --red: #d84a42;
+  --yellow: #f0c54c;
+  --shadow: 0 18px 48px rgba(32, 22, 15, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(217, 93, 57, 0.18), transparent 28rem),
+    linear-gradient(180deg, #f8f2ea 0%, var(--bg) 100%);
+  font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.lobby-shell,
+.room-shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.hero-card,
+.action-card,
+.board-panel,
+.presence-panel,
+.room-error {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.hero-card {
+  padding: 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.hero-card h1,
+.room-header h1 {
+  margin: 0;
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
+  line-height: 0.95;
+}
+
+.lede,
+.subtle-copy,
+.action-card p,
+.presence-panel em {
+  color: var(--muted);
+}
+
+.identity-pill,
+.seat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+}
+
+.identity-pill {
+  margin-top: 1rem;
+  background: rgba(15, 91, 82, 0.08);
+}
+
+.action-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.action-card {
+  padding: 1.5rem;
+}
+
+.action-card form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.action-card input {
+  width: 100%;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: #fff;
+}
+
+.cta-button,
+.secondary-button,
+.column-button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.cta-button {
+  background: var(--accent);
+  color: #fff;
+}
+
+.secondary-button {
+  background: rgba(15, 91, 82, 0.12);
+  color: var(--ink);
+}
+
+.cta-button:hover,
+.secondary-button:hover,
+.column-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.error-copy,
+.room-error {
+  color: var(--accent-2);
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.status-stack {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: end;
+}
+
+.seat-badge.red {
+  background: rgba(216, 74, 66, 0.12);
+}
+
+.seat-badge.yellow {
+  background: rgba(240, 197, 76, 0.18);
+}
+
+.board-panel {
+  margin-top: 1rem;
+  padding: 1.5rem;
+}
+
+.turn-banner {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.column-buttons {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  margin: 1rem 0;
+}
+
+.column-button {
+  background: rgba(21, 66, 93, 0.1);
+  color: var(--ink);
+}
+
+.column-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.board-grid {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 1.5rem;
+  background: var(--board);
+}
+
+.board-row {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.board-cell {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--board-slot);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+.board-cell.disc-red {
+  background: var(--red);
+}
+
+.board-cell.disc-yellow {
+  background: var(--yellow);
+}
+
+.presence-panel {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.presence-panel ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.presence-panel li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+code {
+  word-break: break-all;
+}
+
+@media (max-width: 780px) {
+  .room-header {
+    flex-direction: column;
+  }
+
+  .status-stack {
+    justify-items: start;
+  }
+
+  .column-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

@@ -66,6 +66,39 @@ defmodule TestElixir.ConnectFourTest do
     assert resumed.turn == :red
   end
 
+  test "drop_disc/3 rejects unknown players, invalid columns, and full columns" do
+    game =
+      ConnectFour.new("room-6")
+      |> join!("alice")
+      |> join!("bob")
+
+    assert {:error, :unknown_player} = ConnectFour.drop_disc(game, "carol", 0)
+    assert {:error, :invalid_column} = ConnectFour.drop_disc(game, "alice", -1)
+    assert {:error, :invalid_column} = ConnectFour.drop_disc(game, "alice", 7)
+
+    filled =
+      drop_sequence!(
+        game,
+        ["alice", "bob", "alice", "bob", "alice", "bob"],
+        [0, 0, 0, 0, 0, 0]
+      )
+
+    assert {:error, :column_full} = ConnectFour.drop_disc(filled, "alice", 0)
+  end
+
+  test "disconnect/2 rejects unknown players and game_over blocks moves" do
+    game =
+      ConnectFour.new("room-7")
+      |> join!("alice")
+      |> join!("bob")
+
+    assert {:error, :unknown_player} = ConnectFour.disconnect(game, "carol")
+
+    finished = %{game | status: :won, winner: :red}
+
+    assert {:error, :game_over} = ConnectFour.drop_disc(finished, "alice", 0)
+  end
+
   defp join!(game, player_id) do
     {:ok, joined, _color} = ConnectFour.join(game, player_id)
     joined

@@ -17,7 +17,7 @@ defmodule TestElixir.ConnectFour do
             winner: nil
 
   @type color :: :red | :yellow
-  @type status :: :waiting_for_player | :ready | :won | :draw
+  @type status :: :waiting_for_player | :ready | :paused | :won | :draw
   @type player_id :: String.t()
   @type column :: non_neg_integer()
   @type join_error :: :room_full
@@ -34,6 +34,7 @@ defmodule TestElixir.ConnectFour do
   @type t :: %__MODULE__{
           id: String.t(),
           players: %{player_id() => color()},
+          connections: %{player_id() => connection_status()},
           columns: [[color()]],
           status: status(),
           turn: color(),

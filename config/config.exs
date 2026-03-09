@@ -10,7 +10,8 @@ config :test_elixir, TestElixirWeb.Endpoint,
     formats: [json: TestElixirWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: TestElixir.PubSub
+  pubsub_server: TestElixir.PubSub,
+  live_view: [signing_salt: "LLX6Jv7a"]
 
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",

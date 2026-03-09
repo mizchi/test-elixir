@@ -13,6 +13,7 @@ defmodule TestElixirWeb.ConnCase do
 
       import Plug.Conn
       import Phoenix.ConnTest
+      import Phoenix.LiveViewTest
       import TestElixirWeb.ConnCase
     end
   end

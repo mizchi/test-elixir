@@ -39,6 +39,15 @@ The server listens on `http://localhost:4000`.
 Opening `http://localhost:4000/` in a browser now shows a small landing page
 with the available API routes.
 
+For the browser-based Connect Four UI, open:
+
+```text
+http://localhost:4000/connect-four
+```
+
+Create a room in the lobby, then open the same room URL in a second browser
+window with another `player_id`.
+
 ## API
 
 Create a Connect Four room:
