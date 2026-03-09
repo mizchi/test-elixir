@@ -21,4 +21,10 @@ quality:
 typecheck:
   mix typecheck
 
+bench-http *args:
+  k6 run bench/k6/http_api.js {{args}}
+
+bench-channel *args:
+  k6 run bench/k6/connect_four_channel.js {{args}}
+
 ci: quality typecheck

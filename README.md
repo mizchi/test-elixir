@@ -126,3 +126,29 @@ just quality
 just typecheck
 just ci
 ```
+
+## Benchmark
+
+Start the server in one shell:
+
+```bash
+just server
+```
+
+Then run k6 in another shell:
+
+```bash
+just bench-http
+just bench-channel
+```
+
+Both scripts accept k6-style environment overrides:
+
+```bash
+VUS=20 DURATION=30s just bench-http
+VUS=50 DURATION=20s just bench-channel
+```
+
+`bench-http` measures the landing page, LiveView lobby HTML, reminders API, and
+Connect Four room creation. `bench-channel` measures room creation plus Phoenix
+Channel join latency for Connect Four.
