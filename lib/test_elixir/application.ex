@@ -9,6 +9,8 @@ defmodule TestElixir.Application do
       TestElixirWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:test_elixir, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: TestElixir.PubSub},
+      {Registry, keys: :unique, name: TestElixir.ConnectFour.Registry},
+      {DynamicSupervisor, strategy: :one_for_one, name: TestElixir.ConnectFour.RoomSupervisor},
       {TestElixir.Reminders.Server, name: TestElixir.Reminders.Server},
       TestElixirWeb.Endpoint
     ]

@@ -41,6 +41,30 @@ with the available API routes.
 
 ## API
 
+Create a Connect Four room:
+
+```bash
+curl -X POST http://127.0.0.1:4000/api/connect-four/rooms
+```
+
+Then connect players to the returned topic over Phoenix Channels:
+
+```text
+ws://127.0.0.1:4000/socket/websocket?vsn=2.0.0&player_id=alice
+```
+
+Join topic:
+
+```json
+["1","1","connect_four:ROOM_ID","phx_join",{}]
+```
+
+Drop a token:
+
+```json
+["2","2","connect_four:ROOM_ID","drop_token",{"column":0}]
+```
+
 List reminders:
 
 ```bash

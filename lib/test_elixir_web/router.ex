@@ -12,6 +12,7 @@ defmodule TestElixirWeb.Router do
   scope "/api", TestElixirWeb do
     pipe_through :api
 
+    post "/connect-four/rooms", ConnectFourRoomController, :create
     get "/reminders", ReminderController, :index
     post "/reminders", ReminderController, :create
     patch "/reminders/:id/complete", ReminderController, :complete
