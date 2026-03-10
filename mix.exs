@@ -42,6 +42,7 @@ defmodule TestElixir.MixProject do
 
   defp aliases do
     [
+      "assets.deploy": ["phx.digest"],
       setup: ["deps.get"],
       quality: ["format --check-formatted", "compile --warnings-as-errors", "test"],
       typecheck: ["dialyzer"]

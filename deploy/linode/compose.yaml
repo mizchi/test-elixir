@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: test-elixir:linode
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:4000/healthz >/dev/null"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s

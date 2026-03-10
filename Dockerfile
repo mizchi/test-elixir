@@ -1,0 +1,56 @@
+ARG ELIXIR_VERSION=1.19.5
+ARG OTP_VERSION=28.4
+ARG DEBIAN_VERSION=bookworm-20260216-slim
+ARG BUILDER_IMAGE=hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}
+ARG RUNNER_IMAGE=debian:${DEBIAN_VERSION}
+
+FROM ${BUILDER_IMAGE} AS builder
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends build-essential git ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+RUN mix local.hex --force && mix local.rebar --force
+
+ENV MIX_ENV=prod
+
+COPY mix.exs mix.lock ./
+COPY config config
+
+RUN mix deps.get --only ${MIX_ENV}
+RUN mix deps.compile
+
+COPY lib lib
+COPY priv priv
+COPY rel rel
+
+RUN mix compile
+RUN mix assets.deploy
+RUN mix release
+
+FROM ${RUNNER_IMAGE} AS runner
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends libstdc++6 openssl libncurses6 locales curl ca-certificates && \
+    sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+ENV MIX_ENV=prod
+ENV PHX_SERVER=true
+ENV HOME=/app
+
+WORKDIR /app
+
+RUN chown nobody:nogroup /app
+
+COPY --from=builder --chown=nobody:nogroup /app/_build/prod/rel/test_elixir ./
+
+USER nobody
+
+CMD ["/app/bin/test_elixir", "start"]

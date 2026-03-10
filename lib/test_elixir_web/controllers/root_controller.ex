@@ -7,6 +7,7 @@ defmodule TestElixirWeb.RootController do
         name: "test_elixir",
         status: "ok",
         endpoints: %{
+          health: "/healthz",
           list_reminders: "/api/reminders",
           create_reminder: "/api/reminders",
           complete_reminder: "/api/reminders/:id/complete"
@@ -15,10 +16,19 @@ defmodule TestElixirWeb.RootController do
     else
       text(conn, """
       TestElixir API
+      GET /healthz
       GET /api/reminders
       POST /api/reminders
       PATCH /api/reminders/:id/complete
       """)
+    end
+  end
+
+  def health(conn, _params) do
+    if wants_json?(conn) do
+      json(conn, %{status: "ok"})
+    else
+      text(conn, "ok\n")
     end
   end
 

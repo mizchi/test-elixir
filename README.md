@@ -125,6 +125,7 @@ Task shortcuts via `just`:
 just quality
 just typecheck
 just ci
+just docker-build
 ```
 
 ## Benchmark
@@ -186,3 +187,58 @@ The benchmark prints two sections:
 
 - `cold_add`: start runtime + one `add/2` call
 - `hot_add` / `hot_fib`: repeated calls against already-started runtimes
+
+## Deploy
+
+This repository now includes both `Fly.io` and `Linode` deployment settings.
+Both paths use the same release-oriented [Dockerfile](/Users/mz/sandbox/test-elixir/Dockerfile).
+
+### Shared constraints
+
+- `GET /healthz` is available for load balancer and platform health checks.
+- The current reminders store and Connect Four rooms live in memory.
+- Because of that, production should stay on a single app node unless you
+  externalize state or add node-aware room routing.
+
+### Fly.io
+
+- Config file: [fly.toml](/Users/mz/sandbox/test-elixir/fly.toml)
+- Release env hooks: [rel/env.sh.eex](/Users/mz/sandbox/test-elixir/rel/env.sh.eex)
+- Default region: `nrt` (Tokyo)
+
+Typical flow:
+
+```bash
+fly auth login
+fly apps create mizchi-test-elixir
+fly secrets set SECRET_KEY_BASE="$(mix phx.gen.secret)"
+fly deploy
+```
+
+You will probably want to change `app` and `PHX_HOST` in
+[fly.toml](/Users/mz/sandbox/test-elixir/fly.toml) if `mizchi-test-elixir` is
+already taken.
+
+`ENABLE_DISTRIBUTED_ERLANG` is intentionally `false` by default. Turn it on
+only after you externalize state or add node-aware room routing, and then set a
+shared `RELEASE_COOKIE` secret.
+
+### Linode
+
+- Compose setup: [deploy/linode/compose.yaml](/Users/mz/sandbox/test-elixir/deploy/linode/compose.yaml)
+- Env template: [deploy/linode/.env.example](/Users/mz/sandbox/test-elixir/deploy/linode/.env.example)
+- Deployment notes: [deploy/linode/README.md](/Users/mz/sandbox/test-elixir/deploy/linode/README.md)
+
+Typical flow:
+
+```bash
+cp deploy/linode/.env.example deploy/linode/.env
+$EDITOR deploy/linode/.env
+docker compose -f deploy/linode/compose.yaml up -d --build
+```
+
+For Linode NodeBalancer, point HTTP health checks at `/healthz`. TLS
+termination can stay at the balancer while Phoenix serves plain HTTP on port
+`4000`.
+
+Keep `ENABLE_DISTRIBUTED_ERLANG=false` for the current single-node setup.

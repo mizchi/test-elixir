@@ -1,0 +1,9 @@
+.git
+_build
+cover
+deps
+erl_crash.dump
+native/wasmtime_host/target
+test
+.github
+deploy/linode/.env

@@ -13,6 +13,15 @@
 # Temporary files, for example, from tests.
 /tmp/
 
+# Deployment environment files.
+/deploy/linode/.env
+
+# Digested static assets generated for production builds.
+/priv/static/cache_manifest.json
+/priv/static/assets/*.gz
+/priv/static/assets/app-*.css
+/priv/static/assets/app-*.js
+
 # Native Rust build artifacts for the local Wasmtime host.
 /native/wasmtime_host/target/
 

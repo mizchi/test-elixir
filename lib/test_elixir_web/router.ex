@@ -16,6 +16,7 @@ defmodule TestElixirWeb.Router do
 
   scope "/", TestElixirWeb do
     get "/", RootController, :index
+    get "/healthz", RootController, :health
   end
 
   scope "/", TestElixirWeb do

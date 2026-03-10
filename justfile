@@ -21,6 +21,9 @@ quality:
 typecheck:
   mix typecheck
 
+docker-build:
+  docker build -t test-elixir:local .
+
 bench-http *args:
   k6 run bench/k6/http_api.js {{args}}
 
