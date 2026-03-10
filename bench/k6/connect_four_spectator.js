@@ -260,12 +260,12 @@ function handleStateUpdated(client, nextState, state) {
       spectatorUpdateDeliveryDuration.add(Date.now() - state.pendingSpectatorUpdateAt);
       state.pendingSpectatorUpdateAt = null;
     }
-  }
 
-  if (nextState.status === "won" && nextState.winner === "red") {
-    state.complete = true;
-    spectatorMatchDuration.add(Date.now() - state.startedAt);
-    spectatorMatchesCompletedTotal.add(1);
+    if (!state.complete && nextState.status === "won" && nextState.winner === "red") {
+      state.complete = true;
+      spectatorMatchDuration.add(Date.now() - state.startedAt);
+      spectatorMatchesCompletedTotal.add(1);
+    }
   }
 }
 
