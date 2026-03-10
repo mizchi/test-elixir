@@ -141,6 +141,7 @@ Then run k6 in another shell:
 just bench-http
 just bench-channel
 just bench-game
+just bench-spectator
 ```
 
 Both scripts accept k6-style environment overrides:
@@ -149,10 +150,13 @@ Both scripts accept k6-style environment overrides:
 VUS=20 DURATION=30s just bench-http
 VUS=50 DURATION=20s just bench-channel
 VUS=10 DURATION=20s just bench-game
+VUS=10 DURATION=20s just bench-spectator
 ```
 
 `bench-http` measures the landing page, LiveView lobby HTML, reminders API, and
 Connect Four room creation. `bench-channel` measures room creation plus Phoenix
 Channel join latency for Connect Four. `bench-game` creates a room, joins Alice
 and Bob over separate WebSockets, and plays a fixed 7-move match until red
-wins.
+wins. `bench-spectator` adds Carol as a spectator, verifies that spectator
+actions are rejected, and measures how quickly match updates fan out to the
+spectator socket.

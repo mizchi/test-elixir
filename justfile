@@ -30,4 +30,7 @@ bench-channel *args:
 bench-game *args:
   k6 run bench/k6/connect_four_game.js {{args}}
 
+bench-spectator *args:
+  k6 run bench/k6/connect_four_spectator.js {{args}}
+
 ci: quality typecheck
