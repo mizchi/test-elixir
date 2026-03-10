@@ -27,4 +27,7 @@ bench-http *args:
 bench-channel *args:
   k6 run bench/k6/connect_four_channel.js {{args}}
 
+bench-game *args:
+  k6 run bench/k6/connect_four_game.js {{args}}
+
 ci: quality typecheck

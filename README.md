@@ -140,6 +140,7 @@ Then run k6 in another shell:
 ```bash
 just bench-http
 just bench-channel
+just bench-game
 ```
 
 Both scripts accept k6-style environment overrides:
@@ -147,8 +148,11 @@ Both scripts accept k6-style environment overrides:
 ```bash
 VUS=20 DURATION=30s just bench-http
 VUS=50 DURATION=20s just bench-channel
+VUS=10 DURATION=20s just bench-game
 ```
 
 `bench-http` measures the landing page, LiveView lobby HTML, reminders API, and
 Connect Four room creation. `bench-channel` measures room creation plus Phoenix
-Channel join latency for Connect Four.
+Channel join latency for Connect Four. `bench-game` creates a room, joins Alice
+and Bob over separate WebSockets, and plays a fixed 7-move match until red
+wins.
