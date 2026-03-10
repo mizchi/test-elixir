@@ -1,0 +1,10 @@
+/Users/mz/sandbox/test-elixir/native/wasmtime_host/target/release/deps/wasmtime_internal_fiber-2a8282bc1a9d8b2c.d: /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/lib.rs /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/unix.rs /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/stackswitch.rs /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/stackswitch/aarch64.rs
+
+/Users/mz/sandbox/test-elixir/native/wasmtime_host/target/release/deps/libwasmtime_internal_fiber-2a8282bc1a9d8b2c.rlib: /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/lib.rs /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/unix.rs /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/stackswitch.rs /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/stackswitch/aarch64.rs
+
+/Users/mz/sandbox/test-elixir/native/wasmtime_host/target/release/deps/libwasmtime_internal_fiber-2a8282bc1a9d8b2c.rmeta: /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/lib.rs /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/unix.rs /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/stackswitch.rs /Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/stackswitch/aarch64.rs
+
+/Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/lib.rs:
+/Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/unix.rs:
+/Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/stackswitch.rs:
+/Users/mz/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmtime-internal-fiber-42.0.1/src/stackswitch/aarch64.rs:

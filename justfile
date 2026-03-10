@@ -36,4 +36,7 @@ bench-spectator *args:
 bench-soak *args:
   VUS="${VUS:-20}" DURATION="${DURATION:-5m}" GAME_TIMEOUT_MS="${GAME_TIMEOUT_MS:-5000}" k6 run bench/k6/connect_four_spectator.js {{args}}
 
+bench-wasm:
+  mix run bench/wasm_runtime.exs
+
 ci: quality typecheck

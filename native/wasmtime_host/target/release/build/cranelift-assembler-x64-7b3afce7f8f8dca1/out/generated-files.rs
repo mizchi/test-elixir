@@ -1,0 +1,3 @@
+vec![
+  "/Users/mz/sandbox/test-elixir/native/wasmtime_host/target/release/build/cranelift-assembler-x64-7b3afce7f8f8dca1/out/assembler.rs".into(),
+]

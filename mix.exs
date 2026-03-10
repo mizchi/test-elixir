@@ -34,7 +34,9 @@ defmodule TestElixir.MixProject do
       {:jason, "~> 1.4"},
       {:dns_cluster, "~> 0.2.0"},
       {:bandit, "~> 1.5"},
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:wasmex, "~> 0.14"},
+      {:benchee, "~> 1.3", only: :dev}
     ]
   end
 

@@ -143,6 +143,7 @@ just bench-channel
 just bench-game
 just bench-spectator
 just bench-soak
+just bench-wasm
 ```
 
 Both scripts accept k6-style environment overrides:
@@ -153,6 +154,7 @@ VUS=50 DURATION=20s just bench-channel
 VUS=10 DURATION=20s just bench-game
 VUS=10 DURATION=20s just bench-spectator
 just bench-soak
+FIB_INPUT=20 BENCH_TIME_S=3 just bench-wasm
 ```
 
 `bench-http` measures the landing page, LiveView lobby HTML, reminders API, and
@@ -172,3 +174,15 @@ summary:
 - `spectator_state_updates_total`
 - `spectator_rejections_total`
 - `match_moves_sent_total`
+
+`bench-wasm` compares two Elixir-side Wasm execution paths against the same
+fixture module in `priv/wasm/sample.wat`:
+
+- `Wasmex`, which embeds Wasmtime through a Rust NIF
+- `Port + native wasmtime host`, which keeps Wasmtime in an external process
+
+The first run builds the native host under `native/wasmtime_host/` with Cargo.
+The benchmark prints two sections:
+
+- `cold_add`: start runtime + one `add/2` call
+- `hot_add` / `hot_fib`: repeated calls against already-started runtimes
