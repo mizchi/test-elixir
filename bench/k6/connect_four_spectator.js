@@ -1,6 +1,6 @@
 import http from "k6/http";
 import { check } from "k6";
-import { Trend } from "k6/metrics";
+import { Counter, Trend } from "k6/metrics";
 import { WebSocket } from "k6/experimental/websockets";
 
 const BASE_URL = __ENV.BASE_URL || "http://127.0.0.1:4000";
@@ -22,6 +22,11 @@ const MOVE_SEQUENCE = [
 const spectatorJoinDuration = new Trend("spectator_join_duration", true);
 const spectatorUpdateDeliveryDuration = new Trend("spectator_update_delivery_duration", true);
 const spectatorMatchDuration = new Trend("spectator_match_duration", true);
+const roomsCreatedTotal = new Counter("rooms_created_total");
+const spectatorMatchesCompletedTotal = new Counter("spectator_matches_completed_total");
+const spectatorStateUpdatesTotal = new Counter("spectator_state_updates_total");
+const spectatorRejectionsTotal = new Counter("spectator_rejections_total");
+const matchMovesSentTotal = new Counter("match_moves_sent_total");
 
 export const options = {
   scenarios: {
@@ -52,6 +57,8 @@ export default function () {
   if (!roomCreated) {
     return;
   }
+
+  roomsCreatedTotal.add(1);
 
   const roomId = createRoomResponse.json("data.room_id");
   const topic = `connect_four:${roomId}`;
@@ -172,6 +179,7 @@ function handleReply(client, ref, payload, roomId, state) {
 
     if (payload.status === "error" && payload.response && payload.response.detail === "spectator_cannot_play") {
       state.spectatorRejectSeen = true;
+      spectatorRejectionsTotal.add(1);
       maybeAdvanceScenario(state);
       return;
     }
@@ -244,6 +252,7 @@ function handleStateUpdated(client, nextState, state) {
 
   if (client.label === "carol") {
     state.spectatorUpdateCount += 1;
+    spectatorStateUpdatesTotal.add(1);
     state.spectatorStatus = nextState.status;
     state.spectatorWinner = nextState.winner;
 
@@ -256,6 +265,7 @@ function handleStateUpdated(client, nextState, state) {
   if (nextState.status === "won" && nextState.winner === "red") {
     state.complete = true;
     spectatorMatchDuration.add(Date.now() - state.startedAt);
+    spectatorMatchesCompletedTotal.add(1);
   }
 }
 
@@ -302,6 +312,7 @@ function sendJoin(client) {
 function sendMove(client, column) {
   const ref = nextRef(client);
   client.pending[ref] = { type: "move", startedAt: Date.now() };
+  matchMovesSentTotal.add(1);
   client.socket.send(JSON.stringify([client.joinRef, ref, client.topic, "drop_token", { column }]));
 }
 

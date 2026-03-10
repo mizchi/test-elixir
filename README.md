@@ -142,6 +142,7 @@ just bench-http
 just bench-channel
 just bench-game
 just bench-spectator
+just bench-soak
 ```
 
 Both scripts accept k6-style environment overrides:
@@ -151,6 +152,7 @@ VUS=20 DURATION=30s just bench-http
 VUS=50 DURATION=20s just bench-channel
 VUS=10 DURATION=20s just bench-game
 VUS=10 DURATION=20s just bench-spectator
+just bench-soak
 ```
 
 `bench-http` measures the landing page, LiveView lobby HTML, reminders API, and
@@ -159,4 +161,14 @@ Channel join latency for Connect Four. `bench-game` creates a room, joins Alice
 and Bob over separate WebSockets, and plays a fixed 7-move match until red
 wins. `bench-spectator` adds Carol as a spectator, verifies that spectator
 actions are rejected, and measures how quickly match updates fan out to the
-spectator socket.
+spectator socket. `bench-soak` is a longer-running wrapper around
+`bench-spectator` with defaults tuned for local soak runs.
+
+The spectator benchmarks also emit soak-friendly counters in the default k6
+summary:
+
+- `rooms_created_total`
+- `spectator_matches_completed_total`
+- `spectator_state_updates_total`
+- `spectator_rejections_total`
+- `match_moves_sent_total`
